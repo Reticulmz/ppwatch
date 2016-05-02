@@ -208,9 +208,6 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 		return false, &PlayInfo{}, nil
 	}
 
-	this.LastTime = date
-	this.LastPP = float32(pp)
-
 	playinfo := &PlayInfo{
 		Time: date,
 		BeatmapID: beatmapID,
@@ -222,6 +219,9 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 		Perfect: recentPlayData[0]["perfect"].(string) == "1",
 		GainedPP: float32(pp) - this.LastPP,
 	}
+
+	this.LastTime = date
+	this.LastPP = float32(pp)
 
 	return true, playinfo, nil
 }

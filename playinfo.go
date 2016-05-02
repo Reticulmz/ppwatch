@@ -23,7 +23,7 @@ type PlayInfo struct {
 
 func (play *PlayInfo) String() string {
 	// Display + on positive and - on negative
-	gainedpp := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%.2f", play.GainedPP), "0"), ".")
+	gainedpp := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%f", play.GainedPP), "0"), ".")
 	if play.GainedPP > 0 {
 		gainedpp = fmt.Sprintf("+%s", gainedpp)
 	}
