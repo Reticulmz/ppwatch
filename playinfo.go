@@ -1,24 +1,24 @@
 package main
 
 import (
-	"time"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type PlayInfo struct {
-	Time time.Time
+	Time time.Time `json:"time"`
 
-	Beatmap string
-	BeatmapID int
-	Difficulty string
+	Beatmap    string `json:"beatmap"`
+	BeatmapID  int    `json:"beatmap_id"`
+	Difficulty string `json:"difficulty"`
 
-	Rank string
-	Score int
-	MaxCombo int
-	Perfect bool
+	Rank     string `json:"rank"`
+	Score    int    `json:"score"`
+	MaxCombo int    `json:"maxcombo"`
+	Perfect  bool   `json:"perfect"`
 
-	GainedPP float32
+	GainedPP float32 `json:"gainedpp"`
 }
 
 func (play *PlayInfo) String() string {

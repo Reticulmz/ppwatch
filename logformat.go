@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/mgutz/ansi"
 	log "github.com/Sirupsen/logrus"
+	"github.com/mgutz/ansi"
 )
 
 type LogFormatter struct {
@@ -18,14 +18,14 @@ type LogFormatter struct {
 }
 
 func NewLogFormatter(disablecolor bool) *LogFormatter {
-	return &LogFormatter {
+	return &LogFormatter{
 		DisableColor: disablecolor,
-		PanicColor: ansi.ColorCode("red"),
-		FatalColor: ansi.ColorCode("red"),
-		ErrorColor: ansi.ColorCode("red"),
-		WarnColor:  ansi.ColorCode("yellow"),
-		InfoColor:  ansi.ColorCode("blue"),
-		DebugColor: ansi.ColorCode("magenta"),
+		PanicColor:   ansi.ColorCode("red"),
+		FatalColor:   ansi.ColorCode("red"),
+		ErrorColor:   ansi.ColorCode("red"),
+		WarnColor:    ansi.ColorCode("yellow"),
+		InfoColor:    ansi.ColorCode("blue"),
+		DebugColor:   ansi.ColorCode("magenta"),
 	}
 }
 

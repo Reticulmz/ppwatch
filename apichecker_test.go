@@ -1,9 +1,9 @@
 package main
 
 import (
-	"testing"
-	"net/url"
 	"github.com/stretchr/testify/assert"
+	"net/url"
+	"testing"
 )
 
 func TestAPICheckRecentPlayURLConstructor(t *testing.T) {
@@ -22,7 +22,7 @@ func TestAPICheckRecentPlayURLConstructor(t *testing.T) {
 	query.Set("type", "string")
 	apiurl.RawQuery = query.Encode()
 
-	assert.Equal(t, apiurl, constructedurl)	
+	assert.Equal(t, apiurl, constructedurl)
 }
 
 func TestAPICheckUserGetURLConstructor(t *testing.T) {
@@ -40,7 +40,7 @@ func TestAPICheckUserGetURLConstructor(t *testing.T) {
 	query.Set("type", "string")
 	apiurl.RawQuery = query.Encode()
 
-	assert.Equal(t, apiurl, constructedurl)	
+	assert.Equal(t, apiurl, constructedurl)
 }
 
 func TestAPICheckBeatmapGetURLConstructor(t *testing.T) {
@@ -57,5 +57,5 @@ func TestAPICheckBeatmapGetURLConstructor(t *testing.T) {
 	query.Set("b", "1")
 	apiurl.RawQuery = query.Encode()
 
-	assert.Equal(t, apiurl, constructedurl)	
+	assert.Equal(t, apiurl, constructedurl)
 }

@@ -13,12 +13,12 @@ last_pp: 0`
 
 type Config struct {
 	UserName string `json:"username"`
-	APIKey string `json:"apikey"`
+	APIKey   string `json:"apikey"`
 
-	WaitTime string `json:"wait_time"`
-	ProcessName string `json:"process"`
+	WaitTime           string `json:"wait_time"`
+	ProcessName        string `json:"process"`
 	PartialWindowTitle string `json:"partialtitle"`
 
-	LastTime string `json:"last_time"`
-	LastPP float32 `json:"last_pp"`
+	LastTime string  `json:"last_time"`
+	LastPP   float32 `json:"last_pp"`
 }

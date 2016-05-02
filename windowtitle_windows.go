@@ -1,10 +1,10 @@
 package main
 
 import (
-    "os/exec"
-    "fmt"
-    "strings"
-    log "github.com/Sirupsen/logrus"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"os/exec"
+	"strings"
 )
 
 const powershellExpression = `gps |
@@ -38,7 +38,7 @@ func (tc *WindowTitleChecker) check() (bool, error) {
 	}
 
 	// Last line in array should now be our window title, so do the compare
-	title := strings.Trim(outlines[len(outlines) - 1], " ")
+	title := strings.Trim(outlines[len(outlines)-1], " ")
 	if title != tc.LastTitle {
 		tc.LastTitle = title
 		return true, nil

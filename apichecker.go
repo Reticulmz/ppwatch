@@ -1,34 +1,33 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
-	"fmt"
-	"io/ioutil"
-	"encoding/json"
 	"strconv"
-	log "github.com/Sirupsen/logrus"
+	"time"
 )
 
 type APIChecker struct {
 	UserName string
-	APIKey string
+	APIKey   string
 
 	LastTime time.Time
-	LastPP float32
+	LastPP   float32
 
 	APIBase string
 }
 
-
 func NewAPIChecker(username, apikey string) *APIChecker {
 	return &APIChecker{
 		UserName: username,
-		APIKey: apikey,
+		APIKey:   apikey,
 		LastTime: time.Now(),
-		LastPP: 0,
-		APIBase: "http://osu.ppy.sh/api",
+		LastPP:   0,
+		APIBase:  "http://osu.ppy.sh/api",
 	}
 }
 
@@ -82,7 +81,6 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 	var beatmapInfo []map[string]interface{}
 	var userInfo []map[string]interface{}
 
-
 	// Get the most recent play
 
 	recenturl, err := this.constructRecentPlayURL()
@@ -112,12 +110,12 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 	}
 
 	// Check that we've actually got a new score
-	
+
 	date, err := time.Parse("2006-01-02 15:04:05", recentPlayData[0]["date"].(string))
 	if err != nil {
 		log.Warnf("failed to parse date: %s", err)
 		return false, &PlayInfo{}, nil
-	}	
+	}
 
 	if date.Unix() <= this.LastTime.Unix() {
 		log.Debugf("we've seen this play before (%s)", date.Format("2006-01-02 15:04:05"))
@@ -209,15 +207,15 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 	}
 
 	playinfo := &PlayInfo{
-		Time: date,
-		BeatmapID: beatmapID,
-		Beatmap: fmt.Sprintf("%s - %s", beatmapInfo[0]["artist"].(string), beatmapInfo[0]["title"].(string)),
+		Time:       date,
+		BeatmapID:  beatmapID,
+		Beatmap:    fmt.Sprintf("%s - %s", beatmapInfo[0]["artist"].(string), beatmapInfo[0]["title"].(string)),
 		Difficulty: beatmapInfo[0]["version"].(string),
-		Rank: recentPlayData[0]["rank"].(string),
-		Score: score,
-		MaxCombo: combo,
-		Perfect: recentPlayData[0]["perfect"].(string) == "1",
-		GainedPP: float32(pp) - this.LastPP,
+		Rank:       recentPlayData[0]["rank"].(string),
+		Score:      score,
+		MaxCombo:   combo,
+		Perfect:    recentPlayData[0]["perfect"].(string) == "1",
+		GainedPP:   float32(pp) - this.LastPP,
 	}
 
 	this.LastTime = date

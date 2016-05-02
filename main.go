@@ -1,19 +1,21 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
-	"time"
-	"path"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"os/user"
-	"io/ioutil"
+	"path"
+	"time"
 
-	"github.com/ghodss/yaml"
 	log "github.com/Sirupsen/logrus"
+	"github.com/ghodss/yaml"
 )
 
 const (
-	VERSION = "v0.1.1"
+	VERSION = "v0.1.2"
 )
 
 func main() {
@@ -22,16 +24,22 @@ func main() {
 	var debug = flag.Bool("debug", false, "enable debug logging")
 	var nocolor = flag.Bool("nocolor", false, "disable color in output")
 	var configpath = flag.String("config", "", "path to configuration")
+	var jsonoutput = flag.Bool("json", false, "output as json")
 
 	flag.Parse()
 
 	log.SetLevel(log.InfoLevel)
 	log.SetFormatter(NewLogFormatter(*nocolor))
-	log.Infof("ppwatch %s", VERSION)
+
+	if *jsonoutput {
+		log.SetFormatter(&log.JSONFormatter{})
+	}
 
 	if *debug {
 		log.SetLevel(log.DebugLevel)
 	}
+
+	log.Infof("ppwatch %s", VERSION)
 
 	user, err := user.Current()
 	if err != nil {
@@ -62,7 +70,7 @@ func main() {
 	}
 
 	api := NewAPIChecker(config.UserName, config.APIKey)
-	api.LastTime, _ = time.Parse("2006-01-02 15:04:05", config.LastTime) 
+	api.LastTime, _ = time.Parse("2006-01-02 15:04:05", config.LastTime)
 	api.LastPP = config.LastPP
 
 	log.Debugf("process: \"%s\"", config.ProcessName)
@@ -125,6 +133,16 @@ func main() {
 
 			if newplay {
 				log.Infof("%s", data)
+
+				if *jsonoutput {
+					out, err := json.Marshal(data)
+					if err != nil {
+						log.Errorf("error marshalling json: %s", err)
+						continue
+					}
+
+					fmt.Println(string(out))
+				}
 
 				// Write the new PP and date values to the config, and save
 				config.LastTime = api.LastTime.Format("2006-01-02 15:04:05")

@@ -5,17 +5,17 @@ import (
 )
 
 type WindowTitleChecker struct {
-	ProcessName string
+	ProcessName        string
 	PartialWindowTitle string
 
 	LastTitle string
 }
 
-func NewWindowTitleChecker(processname, partialtitle string) (*WindowTitleChecker) {
-	tc := &WindowTitleChecker {
-		ProcessName: processname,
+func NewWindowTitleChecker(processname, partialtitle string) *WindowTitleChecker {
+	tc := &WindowTitleChecker{
+		ProcessName:        processname,
 		PartialWindowTitle: partialtitle,
-		LastTitle: "",
+		LastTitle:          "",
 	}
 
 	return tc
