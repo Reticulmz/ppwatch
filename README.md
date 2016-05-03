@@ -1,6 +1,8 @@
 ppwatch
 =======
 
+![](./ppwatch.png)
+
 A simple command-line application to give you updated PP counts as you
 play osu!.
 
@@ -15,6 +17,30 @@ Usage
 
 [api]: https://osu.ppy.sh/p/api
 [releases]: https://github.com/txanatan/ppwatch/releases
+
+Advanced usage
+--------------
+
+There is a `-json` flag, which will output rank information in JSON on stdout,
+and logging information (errors, etc) on stderr, as JSON hashes.
+
+Example rank information:
+
+```json
+{"time":"2016-05-03T18:45:52Z","gamemode":"osu","beatmap":"SawanoHiroyuki[nZk]:mizuki - \u0026Z (TV size-English ver.-)","beatmap_id":593823,"difficulty":"Insane","rank":"B","score":1763920,"maxcombo":283,"perfect":false,"gainedpp":0}
+```
+
+Example logging information:
+
+```json
+{"level":"info","msg":"found osu! window: osu!cuttingedge b20160503","time":"2016-05-03T22:49:06+12:00"}
+```
+
+The process name and window title to check for can be changed in `.ppwatch.yml`
+via the `process` and `partialtitle` keys.
+
+Debug logging can be enabled with the `-debug` flag, which may be useful if
+something goes wrong.
 
 Compiling
 ---------
