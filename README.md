@@ -8,12 +8,10 @@ Usage
 -----
 
 1. Register an API key on the [osu! API page][api], and copy it.
-2. Download a ppwatch binary from [the Releases page][releases], and run it.
-3. Edit the `.ppwatch.yml` file in your user directory, changing the `EDITME`
-   after `api_key:` to the API key you got from the osu! website, and doing the
-   same for your username. Leave all the other values as they are.
-4. Run the ppwatch binary again, and you will see your PP come in when you finish
-   a map!
+2. Download a ppwatch binary from [the Releases page][releases], and run it,
+   filling in your username and API key when prompted (you'll only have to do
+   this once, it'll remember your information afterwards)
+3. Done!
 
 [api]: https://osu.ppy.sh/p/api
 [releases]: https://github.com/txanatan/ppwatch/releases
