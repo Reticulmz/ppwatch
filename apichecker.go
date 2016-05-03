@@ -126,6 +126,7 @@ func (this *APIChecker) CheckForPlay(gamemodes []string) (bool, *PlayInfo, error
 
 		err = json.Unmarshal(body, &recentPlayData)
 		if err != nil {
+			log.Debugf("failed to unmarshal recent plays, erroring. content: %s", string(body))
 			return false, &PlayInfo{}, fmt.Errorf("failed to get recent plays: %s", err)
 		}
 
@@ -185,6 +186,7 @@ func (this *APIChecker) CheckForPlay(gamemodes []string) (bool, *PlayInfo, error
 
 	err = json.Unmarshal(body, &beatmapInfo)
 	if err != nil {
+		log.Debugf("failed to unmarshal beatmap, erroring. content: %s", string(body))
 		log.Warnf("failed to get beatmap: %s", err)
 		return false, &PlayInfo{}, nil
 	}
@@ -213,6 +215,7 @@ func (this *APIChecker) CheckForPlay(gamemodes []string) (bool, *PlayInfo, error
 
 	err = json.Unmarshal(body, &userInfo)
 	if err != nil {
+		log.Debugf("failed to unmarshal user info, erroring. content: %s", string(body))
 		log.Warnf("failed to get user info: %s", err)
 		return false, &PlayInfo{}, nil
 	}
