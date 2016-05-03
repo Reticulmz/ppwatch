@@ -4,6 +4,7 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/mgutz/ansi"
+	"runtime"
 )
 
 type LogFormatter struct {
@@ -18,6 +19,10 @@ type LogFormatter struct {
 }
 
 func NewLogFormatter(disablecolor bool) *LogFormatter {
+	if runtime.GOOS == "windows" {
+		disablecolor = true
+	}
+
 	return &LogFormatter{
 		DisableColor: disablecolor,
 		PanicColor:   ansi.ColorCode("red"),

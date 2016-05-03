@@ -9,6 +9,7 @@ import (
 type PlayInfo struct {
 	Time time.Time `json:"time"`
 
+	GameMode   string `json:"gamemode"`
 	Beatmap    string `json:"beatmap"`
 	BeatmapID  int    `json:"beatmap_id"`
 	Difficulty string `json:"difficulty"`
@@ -35,10 +36,25 @@ func (play *PlayInfo) String() string {
 		perfect = " PERFECT"
 	}
 
+	var gamemode string
+	switch play.GameMode {
+	case "osu":
+		gamemode = "osu!"
+	case "taiko":
+		gamemode = "osu!taiko"
+	case "ctb":
+		gamemode = "CatchTheBeat"
+	case "mania":
+		gamemode = "osu!mania"
+	default:
+		gamemode = "unknown gamemode"
+	}
+
 	return fmt.Sprintf(
-		"%s [%s] | %s %dx%s (%d) | %s",
+		"%s [%s] (%s) | %s %dx%s (%d) | %s",
 		play.Beatmap,
 		play.Difficulty,
+		gamemode,
 		play.Rank,
 		play.MaxCombo,
 		perfect,

@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-const powershellExpression = `gps |
+const getWindowTitlePowershellExpression = `gps |
 ? {$_.mainwindowtitle -like "*%s*"} |
 ? {$_.processname -like "%s"} |
 select mainwindowtitle`
 
 func (tc *WindowTitleChecker) check() (bool, error) {
-	expr := fmt.Sprintf(powershellExpression, tc.PartialWindowTitle, tc.ProcessName)
+	expr := fmt.Sprintf(getWindowTitlePowershellExpression, tc.PartialWindowTitle, tc.ProcessName)
 	log.Debugf("executing powershell expression: %s", strings.Replace(expr, "\n", " ", -1))
 	cmd := exec.Command("powershell", "-command", expr)
 

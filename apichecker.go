@@ -16,7 +16,7 @@ type APIChecker struct {
 	APIKey   string
 
 	LastTime time.Time
-	LastPP   float32
+	LastPP   map[string]float32
 
 	APIBase string
 }
@@ -26,12 +26,12 @@ func NewAPIChecker(username, apikey string) *APIChecker {
 		UserName: username,
 		APIKey:   apikey,
 		LastTime: time.Now(),
-		LastPP:   0,
+		LastPP:   make(map[string]float32),
 		APIBase:  "http://osu.ppy.sh/api",
 	}
 }
 
-func (this *APIChecker) constructRecentPlayURL() (*url.URL, error) {
+func (this *APIChecker) constructRecentPlayURL(modenum string) (*url.URL, error) {
 	apiurl, err := url.Parse(fmt.Sprintf("%s/get_user_recent", this.APIBase))
 	if err != nil {
 		return nil, err
@@ -41,6 +41,7 @@ func (this *APIChecker) constructRecentPlayURL() (*url.URL, error) {
 	query.Set("k", this.APIKey)
 	query.Set("u", this.UserName)
 	query.Set("limit", "1")
+	query.Set("m", modenum)
 	query.Set("type", "string")
 
 	apiurl.RawQuery = query.Encode()
@@ -61,7 +62,7 @@ func (this *APIChecker) constructBeatmapGetURL(beatmapid int) (*url.URL, error) 
 	return apiurl, nil
 }
 
-func (this *APIChecker) constructUserGetURL() (*url.URL, error) {
+func (this *APIChecker) constructUserGetURL(modenum string) (*url.URL, error) {
 	apiurl, err := url.Parse(fmt.Sprintf("%s/get_user", this.APIBase))
 	if err != nil {
 		return nil, err
@@ -70,65 +71,95 @@ func (this *APIChecker) constructUserGetURL() (*url.URL, error) {
 	query := apiurl.Query()
 	query.Set("k", this.APIKey)
 	query.Set("u", this.UserName)
+	query.Set("m", modenum)
 	query.Set("type", "string")
 
 	apiurl.RawQuery = query.Encode()
 	return apiurl, nil
 }
 
-func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
+func (this *APIChecker) CheckForPlay(gamemodes []string) (bool, *PlayInfo, error) {
 	var recentPlayData []map[string]interface{}
 	var beatmapInfo []map[string]interface{}
 	var userInfo []map[string]interface{}
 
+	var gamemode string
+	var modenum string
+	var beatmapID int
+	var date time.Time
+	var err error
+	var body []byte
+	var resp *http.Response
+
 	// Get the most recent play
+	for _, mode := range gamemodes {
+		gamemode = mode // to persist outside of the loop
+		switch mode {
+		case "osu":
+			modenum = "0"
+		case "taiko":
+			modenum = "1"
+		case "ctb":
+			modenum = "2"
+		case "mania":
+			modenum = "3"
+		default:
+			return false, &PlayInfo{}, fmt.Errorf("invalid gamemode given: %s", mode)
+		}
 
-	recenturl, err := this.constructRecentPlayURL()
-	if err != nil {
-		log.Warnf("failed to construct recent plays url: %s", err)
-		return false, &PlayInfo{}, nil
+		recenturl, err := this.constructRecentPlayURL(modenum)
+		if err != nil {
+			return false, &PlayInfo{}, fmt.Errorf("failed to construct recent plays url: %s", err)
+		}
+
+		resp, err := http.Get(recenturl.String())
+		if err != nil {
+			return false, &PlayInfo{}, fmt.Errorf("failed to get recent plays: %s", err)
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			return false, &PlayInfo{}, fmt.Errorf("failed to get recent plays: %s", err)
+		}
+
+		resp.Body.Close()
+
+		err = json.Unmarshal(body, &recentPlayData)
+		if err != nil {
+			return false, &PlayInfo{}, fmt.Errorf("failed to get recent plays: %s", err)
+		}
+
+		if len(recentPlayData) < 1 {
+			// no plays for the current gamemode
+			continue
+		}
+
+		// Check that we've actually got a new score
+		date, err = time.Parse("2006-01-02 15:04:05", recentPlayData[0]["date"].(string))
+		if err != nil {
+			return false, &PlayInfo{}, fmt.Errorf("failed to parse date: %s", err)
+		}
+
+		if date.Unix() <= this.LastTime.Unix() {
+			log.Debugf("we've seen this play before (%s)", date.Format("2006-01-02 15:04:05"))
+			continue
+		}
+
+		beatmapID, err = strconv.Atoi(recentPlayData[0]["beatmap_id"].(string))
+		if err != nil {
+			e := fmt.Errorf("can't convert beatmap_id %s to int: %s", recentPlayData[0]["beatmap_id"].(string), err)
+			return false, &PlayInfo{}, e
+		}
+
+		log.Debugf("new play: gamemode %s, beatmap %d", mode, beatmapID)
+		break
 	}
 
-	resp, err := http.Get(recenturl.String())
-	if err != nil {
-		log.Warnf("failed to get recent plays: %s", err)
+	if beatmapID == 0 {
+		// no new plays, just return
+		log.Debugf("no new plays, returning")
 		return false, &PlayInfo{}, nil
 	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Warnf("failed to get recent plays: %s", err)
-		return false, &PlayInfo{}, nil
-	}
-
-	resp.Body.Close()
-
-	err = json.Unmarshal(body, &recentPlayData)
-	if err != nil {
-		log.Warnf("failed to get recent plays: %s", err)
-		return false, &PlayInfo{}, nil
-	}
-
-	// Check that we've actually got a new score
-
-	date, err := time.Parse("2006-01-02 15:04:05", recentPlayData[0]["date"].(string))
-	if err != nil {
-		log.Warnf("failed to parse date: %s", err)
-		return false, &PlayInfo{}, nil
-	}
-
-	if date.Unix() <= this.LastTime.Unix() {
-		log.Debugf("we've seen this play before (%s)", date.Format("2006-01-02 15:04:05"))
-		return false, &PlayInfo{}, nil
-	}
-
-	beatmapID, err := strconv.Atoi(recentPlayData[0]["beatmap_id"].(string))
-	if err != nil {
-		log.Errorf("can't convert beatmap_id %s to int: %s", recentPlayData[0]["beatmap_id"].(string), err)
-		return false, &PlayInfo{}, nil
-	}
-
-	log.Debugf("new play: beatmap %d", beatmapID)
 
 	// Get the beatmap information
 
@@ -160,7 +191,7 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 
 	// Get the user information to check PP
 
-	userurl, err := this.constructUserGetURL()
+	userurl, err := this.constructUserGetURL(modenum)
 	if err != nil {
 		log.Warnf("failed to construct user info url: %s", err)
 		return false, &PlayInfo{}, nil
@@ -208,6 +239,7 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 
 	playinfo := &PlayInfo{
 		Time:       date,
+		GameMode:   gamemode,
 		BeatmapID:  beatmapID,
 		Beatmap:    fmt.Sprintf("%s - %s", beatmapInfo[0]["artist"].(string), beatmapInfo[0]["title"].(string)),
 		Difficulty: beatmapInfo[0]["version"].(string),
@@ -215,11 +247,11 @@ func (this *APIChecker) CheckForPlay() (bool, *PlayInfo, error) {
 		Score:      score,
 		MaxCombo:   combo,
 		Perfect:    recentPlayData[0]["perfect"].(string) == "1",
-		GainedPP:   float32(pp) - this.LastPP,
+		GainedPP:   float32(pp) - this.LastPP[modenum],
 	}
 
 	this.LastTime = date
-	this.LastPP = float32(pp)
+	this.LastPP[modenum] = float32(pp)
 
 	return true, playinfo, nil
 }
