@@ -250,6 +250,7 @@ func (this *APIChecker) CheckForPlay(gamemodes []string) (bool, *PlayInfo, error
 		Score:      score,
 		MaxCombo:   combo,
 		Perfect:    recentPlayData[0]["perfect"].(string) == "1",
+		TotalPP:    this.LastPP[modenum],
 		GainedPP:   float32(pp) - this.LastPP[modenum],
 	}
 

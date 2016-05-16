@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	VERSION = "v0.2.1"
+	VERSION = "v0.3.0"
 )
 
 const (
@@ -211,6 +211,6 @@ func main() {
 			}
 		}
 
-		time.Sleep(1)
+		time.Sleep(1 * time.Second)
 	}
 }

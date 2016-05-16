@@ -19,17 +19,18 @@ type PlayInfo struct {
 	MaxCombo int    `json:"maxcombo"`
 	Perfect  bool   `json:"perfect"`
 
+	TotalPP  float32 `json:"totalpp"`
 	GainedPP float32 `json:"gainedpp"`
 }
 
 func (play *PlayInfo) String() string {
+	totalpp := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%f", play.TotalPP), "0"), ".")
+
 	// Display + on positive and - on negative
 	gainedpp := strings.TrimRight(strings.TrimRight(fmt.Sprintf("%f", play.GainedPP), "0"), ".")
-	if play.GainedPP > 0 {
+	if play.GainedPP >= 0 {
 		gainedpp = fmt.Sprintf("+%s", gainedpp)
 	}
-
-	gainedpp = fmt.Sprintf("%s PP", gainedpp)
 
 	perfect := ""
 	if play.Perfect {
@@ -51,7 +52,7 @@ func (play *PlayInfo) String() string {
 	}
 
 	return fmt.Sprintf(
-		"%s [%s] (%s) | %s %dx%s (%d) | %s",
+		"%s [%s] (%s) | %s %dx%s (%d) | %s PP (%s)",
 		play.Beatmap,
 		play.Difficulty,
 		gamemode,
@@ -59,6 +60,7 @@ func (play *PlayInfo) String() string {
 		play.MaxCombo,
 		perfect,
 		play.Score,
+		totalpp,
 		gainedpp,
 	)
 }
